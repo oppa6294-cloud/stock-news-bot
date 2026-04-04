@@ -19,7 +19,14 @@ FINNHUB_API_KEY     = os.environ.get("FINNHUB_API_KEY", "")       # Finnhub API 
 KOREAN_STOCKS = [
     "삼성전자",
     "SK하이닉스",
-    "카카오",
+    "하이텍팜",
+    "씨에스윈드",
+    "OCI홀딩스",
+    "HL만도",
+    "펩트론",
+    "삼양바이오팜",
+    "NAVER",
+    "대명에너지",
 ]
 
 US_STOCKS = [
