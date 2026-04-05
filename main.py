@@ -25,6 +25,10 @@ KOREAN_STOCKS = [
     "삼양바이오팜",
     "NAVER",
     "대명에너지",
+    "서진시스템",
+    "아스플로",
+    "세아홀딩스",
+    "토비스",
 ]
 
 US_STOCKS = [
@@ -163,7 +167,7 @@ def check_and_send_news():
         flag = "🇺🇸" if stock in US_STOCKS else "🇰🇷"
         message += f"{flag} <b>{stock}</b>\n"
         for news in news_list:
-            message += f"• {news['title']}\n"
+            message += f"• <a href=\"{news['link']}\">{news['title']}</a>\n"
         message += "\n"
 
     # 출처 링크 추가
@@ -182,7 +186,7 @@ def check_and_send_news():
             flag = "🇺🇸" if stock in US_STOCKS else "🇰🇷"
             body += f"{flag} <b>{stock}</b>\n"
             for news in news_list:
-                body += f"• {news['title']}\n"
+                body += f"• <a href=\"{news['link']}\">{news['title']}</a>\n"
             body += "\n"
         send_telegram(body)
         time.sleep(1)
