@@ -170,7 +170,7 @@ if __name__ == "__main__":
     check_and_send_news()
 
     # 이후 30분마다 자동 실행
-    schedule.every(30).minutes.do(check_and_send_news)
+    schedule.every(10).minutes.do(check_and_send_news)
 
     while True:
         schedule.run_pending()
