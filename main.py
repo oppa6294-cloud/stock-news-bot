@@ -113,7 +113,6 @@ def check_and_send_news():
 
     # 종목별 뉴스 모으기
     collected = {}   # { 종목명: [ {title, link} ] }
-    all_links = []   # 출처 링크 전체 목록
 
     # 한국 주식 뉴스 수집
     for stock in KOREAN_STOCKS:
@@ -132,7 +131,6 @@ def check_and_send_news():
             if stock not in collected:
                 collected[stock] = []
             collected[stock].append({"title": title, "link": link})
-            all_links.append(link)
             print(f"  ✅ 수집: [{stock}] {title[:30]}...")
 
     # 미국 주식 뉴스 수집
@@ -150,7 +148,6 @@ def check_and_send_news():
             if symbol not in collected:
                 collected[symbol] = []
             collected[symbol].append({"title": title, "link": link})
-            all_links.append(link)
             print(f"  ✅ 수집: [{symbol}] {title[:30]}...")
 
     # 새 뉴스가 없으면 전송 안 함
@@ -170,33 +167,30 @@ def check_and_send_news():
             message += f"• <a href=\"{news['link']}\">{news['title']}</a>\n"
         message += "\n"
 
-    # 출처 링크 추가
-    message += "━" * 20 + "\n"
-    message += "🔗 <b>출처</b>\n"
-    for i, link in enumerate(all_links, 1):
-        message += f"{i}. {link}\n"
-
     # 메시지가 너무 길면 분할 전송 (텔레그램 4096자 제한)
+    total = sum(len(v) for v in collected.values())
     if len(message) <= 4096:
         send_telegram(message)
     else:
-        # 본문과 출처를 나눠서 전송
-        body = f"📊 <b>[10분 뉴스 요약]</b>  {now}\n" + "━" * 20 + "\n\n"
+        # 종목별로 나눠서 전송
+        header = f"📊 <b>[10분 뉴스 요약]</b>  {now}\n" + "━" * 20 + "\n\n"
+        chunk = header
         for stock, news_list in collected.items():
             flag = "🇺🇸" if stock in US_STOCKS else "🇰🇷"
-            body += f"{flag} <b>{stock}</b>\n"
+            part = f"{flag} <b>{stock}</b>\n"
             for news in news_list:
-                body += f"• <a href=\"{news['link']}\">{news['title']}</a>\n"
-            body += "\n"
-        send_telegram(body)
-        time.sleep(1)
+                part += f"• <a href=\"{news['link']}\">{news['title']}</a>\n"
+            part += "\n"
+            if len(chunk) + len(part) > 4096:
+                send_telegram(chunk)
+                time.sleep(1)
+                chunk = part
+            else:
+                chunk += part
+        if chunk:
+            send_telegram(chunk)
 
-        link_msg = "🔗 <b>출처</b>\n"
-        for i, link in enumerate(all_links, 1):
-            link_msg += f"{i}. {link}\n"
-        send_telegram(link_msg)
-
-    print(f"  → 총 {len(all_links)}개 뉴스 전송 완료")
+    print(f"  → 총 {total}개 뉴스 전송 완료")
 
 
 # ----------------------------------------------------------------
